@@ -1,0 +1,25 @@
+<ion-view view-title="Checkins">
+  <ion-content>
+    <h1>Checkins</h1>
+
+      <button class="button button-light" ng-click="showCheckins()">
+          Show Checkins
+      </button>
+      <button class="button button-light" ng-click="clearMarkers()">
+          Clear Checkins
+      </button>
+
+
+      <div class="range">
+          <i class="icon ion-ios7-location-outline"></i>
+          <input type="range" name="volume" ng-model="checkingNum" min="1" max="5000">
+          <i class="icon ion-ios7-location"></i>
+      </div>
+      <div style="text-align: center">
+      <span id="aaa">{{checkingNum}}</span>
+      </div>
+      <div id="mapdiv" style="width:100%;height:500px;"></div>
+
+
+  </ion-content>
+</ion-view>
