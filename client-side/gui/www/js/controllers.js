@@ -33,52 +33,92 @@ angular.module('starter.controllers', [])
   };
 })
 
-.controller('PlaylistsCtrl', function($scope) {
+.controller('PlaylistsCtrl', function($scope,$stateParams) {
   $scope.playlists = [
-    { title: 'Reggae', id: 1 },
-    { title: 'Chill', id: 2 },
-    { title: 'Dubstep', id: 3 },
-    { title: 'Indie', id: 4 },
-    { title: 'Rap', id: 5 },
-    { title: 'Cowbell', id: 6 }
+    { title: 'Shavit Cohen', part:"", id: 0 },
+    { title: 'Ran Mochary', id: 1 },
+    { title: 'Ram-on Agmon', id: 2 },
+    { title: 'Roy Reshef', id: 3 },
+      { title: 'Shaul Naim', id: 4 },
   ];
+
+
+
+
 })
 
 .controller('PlaylistCtrl', function($scope, $stateParams,$http) {
+
+        var jobs = [
+            "UI Engineer",
+            "Attack Engineer",
+            "Defence Engineer",
+            "Elastic Search Engineer",
+            "UI Engineer"
+        ];
+
+        $scope.job = jobs[$stateParams.playlistId]
+
+        $scope.checkingNum = 500;
         var map = new OpenLayers.Map("mapdiv");
         map.addLayer(new OpenLayers.Layer.OSM());
-
-        $http.get('http://localhost:3000/getCheckins').
-            success(function(data, status, headers, config) {
-                // this callback will be called asynchronously
-                // when the response is available
-                debugger;
-            }).
-            error(function(data, status, headers, config) {
-                debugger;
-                // called asynchronously if an error occurs
-                // or server returns response with an error status.
-            });
+        var markers = new OpenLayers.Layer.Markers( "Markers" );
+        var arr = [];
+        var zoom = 3;
 
 
-
-        var lonLat = new OpenLayers.LonLat( -0.1279688 ,51.5077286 )
+        /*var lonLat = new OpenLayers.LonLat( -0.1279688 ,51.5077286 )
             .transform(
             new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
             map.getProjectionObject() // to Spherical Mercator Projection
         );
 
-        var zoom=16;
-
-
-
-
-        var markers = new OpenLayers.Layer.Markers( "Markers" );
-        map.addLayer(markers);
-
         markers.addMarker(new OpenLayers.Marker(lonLat));
+        map.setCenter(lonLat, zoom);*/
+        $scope.showCheckins = function(){
 
-        map.setCenter (lonLat, zoom);
+            $http({
+                url: 'http://localhost:3000/getCheckins?aaa=' + document.getElementById("aaa").innerHTML,
+                method: "POST"
+            }).success(function(data, status, headers, config) {
+                    setMarkers(data);
+                }).
+                error(function(data, status, headers, config) {
+                    alert("error to elastic search");
+                });
+
+            /*$http.get('http://localhost:3000/getCheckins',{data:$scope.checkingNum}).
+                success(function(data, status, headers, config) {
+                    setMarkers(data);
+                }).
+                error(function(data, status, headers, config) {
+                    alert("error to elastic search");
+                });*/
+
+
+            map.addLayer(markers);
+
+            $scope.clearMarkers = function(){
+                for(var i=0; i<arr.length; i++){
+                    markers.removeMarker(arr[i])
+                }
+            }
+            function setMarkers(data){
+                for(var i=0;i<data.data.length; i++){
+                    var checkin = data.data[i];
+                    var lonLat = new OpenLayers.LonLat( checkin._source.longitude ,checkin._source.latitude )
+                        .transform(
+                        new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+                        map.getProjectionObject() // to Spherical Mercator Projection
+                    );
+
+                    var marker = new OpenLayers.Marker(lonLat);
+                    markers.addMarker(marker);
+                    arr.push(marker);
+                    map.setCenter(lonLat, zoom);
+                }
+            }
+        }
 
 
 });

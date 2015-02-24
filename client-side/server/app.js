@@ -64,9 +64,13 @@ app.get('/', function(request, response, next) {
     response.render('index');
 });
 
-app.get('/getCheckins', function(request, response, next) {
+app.all('/getCheckins', function(request, response, next) {
+    response.header("Access-Control-Allow-Origin", "*");
+    response.header("Access-Control-Allow-Headers", "X-Requested-With");
+    var url = request.originalUrl;
+    var count = url.substring(url.indexOf("=") + 1);
+
     var esIP = "192.168.1.77:9200";
-    var endpont = "/events/event/_search";
 
     var elasticsearch = require('elasticsearch');
     var client = new elasticsearch.Client({
@@ -79,7 +83,7 @@ app.get('/getCheckins', function(request, response, next) {
         type: 'event',
         body: {
             "from":0,
-            "size":10,
+            "size":parseInt(count),
             "query" : {
                 "filtered" : {
                     "filter" : {
@@ -94,14 +98,10 @@ app.get('/getCheckins', function(request, response, next) {
         }
     }).then(function (body) {
         var hits = body.hits.hits;
-        /*response.send(JSON.stringify({data: hits}));*/
-        response.send({data: "aaa"});
+        response.send({data: hits});
     }, function (error) {
-        response.send({data: "aaa"});
+        response.send({data: "error"});
     });
-
-
-
 
 });
 
